@@ -719,7 +719,7 @@ class InternalCommands:
 				if sys.platform == 'darwin' and not "clean" in args:
 					self.macPostGuiMake(target)
 
-					self.fixQtFrameworksLayout(target)
+					#self.fixQtFrameworksLayout(target)
 			else:
 				raise Exception('Unsupported platform: ' + sys.platform)
 
@@ -773,7 +773,8 @@ class InternalCommands:
 				frameworkRootDir = qLibDir
 			else:
 				# TODO: auto-detect, qt can now be installed anywhere.
-				frameworkRootDir = "/Developer/Qt5.2.1/5.2.1/clang_64/lib"
+				#frameworkRootDir = "/Developer/Qt5.2.1/5.2.1/clang_64/lib"
+				frameworkRootDir = qLibDir
 
 			target = bundleTargetDir + "/Contents/Frameworks"
 
@@ -781,9 +782,13 @@ class InternalCommands:
 			for root, dirs, files in os.walk(target):
 				for dir in dirs:
 					if dir.startswith("Qt"):
-						shutil.copy(
-							frameworkRootDir + "/" + dir + "/Contents/Info.plist",
-							target + "/" + dir + "/Resources/")
+						tgt = target + "/" + dir + "/Resources/Info.plist"
+						if not os.path.isfile(tgt):
+							shutil.copy(
+									frameworkRootDir + "/" + dir + "/Resources/Info.plist",
+									target + "/" + dir + "/Resources/")
+						else:
+							print "Skipping existing plist", tgt
 
 	def symlink(self, source, target):
 		if not os.path.exists(target):
