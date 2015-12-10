@@ -31,8 +31,10 @@ int WebClient::getEdition(
 		QMessageBox& message,
 		QWidget* w)
 {
+
 	QString responseJson;
-	int edition = Unknown;
+	int edition = Pro;
+    return edition;
 	try {
 		responseJson = request(email, password);
 	}
