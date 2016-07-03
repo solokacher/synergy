@@ -774,6 +774,7 @@ class InternalCommands:
 			if err != 0:
 				raise Exception(bin + " failed with error: " + str(err))
 
+
 			frameworkRootDir = commands.getoutput("qmake -query QT_INSTALL_LIBS")
 
 			target = bundleTargetDir + "/Contents/Frameworks"
@@ -782,9 +783,13 @@ class InternalCommands:
 			for root, dirs, files in os.walk(target):
 				for dir in dirs:
 					if dir.startswith("Qt"):
-						shutil.copy(
-							frameworkRootDir + "/" + dir + "/Contents/Info.plist",
-							target + "/" + dir + "/Resources/")
+						tgt = target + "/" + dir + "/Resources/Info.plist"
+						if not os.path.isfile(tgt):
+							shutil.copy(
+									frameworkRootDir + "/" + dir + "/Resources/Info.plist",
+									target + "/" + dir + "/Resources/")
+						else:
+							print "Skipping existing plist", tgt
 
 	def symlink(self, source, target):
 		if not os.path.exists(target):
@@ -818,7 +823,8 @@ class InternalCommands:
 						if dir.startswith("Qt"):
 							self.try_chdir(target + "/" + dir +"/Versions")
 							self.symlink("5", "Current")
-							self.move("../Resources", "5")
+							if not os.path.exists("5/Resources"):
+								self.move("../Resources", "5")
 							self.restore_chdir()
 
 							self.try_chdir(target + "/" + dir)
